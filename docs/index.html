@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <style> body { margin: 0; background-color: black; color: #727983; height: 100%; } </style>
+    <script src="cljs_inline.js"></script>
+  </head>
+  <body>
+    <!--<div id="root"></div>-->
+    <pre id="root"></pre>
+    <script type="text/cljs">
+(ns main.core
+  (:require [reagent.core :as r]))
+
+(defn root []
+  [:div "cljs-inline:
+
+Features:
+    eval clojurescript in devtools console by e`(prn \"hello world\")`
+    write clojurescript inside 
+      \u003cscript type=\"text/cljs\"\u003e\u003c/script\u003e
+    load external clojurescript 
+      \u003cscript type=\"text/cljs\" src=\"myns.cljs\"\u003e\u003c/script\u003e
+        only works in firefox when opened directly ( without a http server )
+
+Tips:
+    Look at the source code of this page
+      Ctrl+U
+
+    write clojurescript without an external editor 
+      devtools Sources
+      Add folder to workspace
+      edit
+      Ctrl+S
+      Ctrl+R
+
+    Take a look at [klips](https://github.com/viebel/klipse) for faster experience
+  "])
+
+(r/render [root] (.getElementById js/document "root"))
+    </script>
+  </body>
+</html>

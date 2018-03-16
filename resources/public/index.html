@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <style> body { margin: 0; background-color: black; color: #727983; height: 100%; } </style>
+    <script src="cljs_inline.js"></script>
+    <script type="text/cljs" src="run.cljs"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/cljs">
+(ns main
+  (:require [reagent.core :as r]))
+(prn :yes)
+;(.write js/document "hello world")
+(defn root []
+  [:div "hello world"]
+  )
+(r/render [root] (.getElementById js/document "root"))
+    </script>
+  </body>
+</html>
