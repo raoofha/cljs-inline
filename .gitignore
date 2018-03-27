@@ -1,8 +1,6 @@
 /target
 /.lein-*
 /.nrepl-port
-node_modules
-package.json
-package-lock.json
+/node_modules
 .stuff
 /resources/public/cljs_inline.js
