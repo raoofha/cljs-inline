@@ -17,4 +17,4 @@
     * Ctrl+S
     * Ctrl+R
 
-* Take a look at [klips](https://github.com/viebel/klipse) for faster experience
+* Take a look at [klipse](https://github.com/viebel/klipse) for faster experience

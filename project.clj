@@ -29,7 +29,7 @@
      :source-paths ["src"]
      :figwheel     true ;{:on-jsload "cljs-inline.client/render"}
      :compiler     {:main                 cljs-inline.client
-                    :output-to            "resources/public/cljs_inline.js"
+                    :output-to            "resources/public/cljs-inline.js"
                     :output-dir           "resources/public/.stuff/out"
                     :asset-path           ".stuff/out"
                     :source-map-timestamp true
@@ -38,7 +38,7 @@
     {:id           "min"
      :source-paths ["src"]
      :compiler     {:main            cljs-inline.client
-                    :output-to       "dist/cljs_inline.js"
+                    :output-to       "dist/cljs-inline.js"
                     :optimizations   :simple
                     :closure-defines {goog.DEBUG false}
                     :pretty-print    false

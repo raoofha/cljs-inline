@@ -3,4 +3,4 @@
 /.nrepl-port
 /node_modules
 .stuff
-/resources/public/cljs_inline.js
+/resources/public/cljs-inline.js
