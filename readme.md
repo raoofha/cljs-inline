@@ -1,7 +1,7 @@
 # hotreload : clojurescript development without jvm
 
 ```
-npm i -g hotreload
+npm i -g hotreload-cljs
 hotreload
 open http://localhost:3000
 curl -d "(cg.core/rectangle [200 200] [20 20] [255 0 0])" http://localhost:3000/hotreload/test.cljs -H "Content-Type: text/plain"

@@ -1,5 +1,5 @@
 {
-  "name": "hotreload",
+  "name": "hotreload-cljs",
   "version": "0.0.0",
   "description": "hotreload clojurescript without JVM",
   "bin": {
@@ -26,6 +26,7 @@
   "keywords": [
     "clojurescript",
     "livereload",
-    "hot reload"
+    "hotreload",
+    "javascript"
   ]
 }
