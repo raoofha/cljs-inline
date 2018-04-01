@@ -20,7 +20,6 @@ var opts = require('minimist')(process.argv.slice(2),{
 var app = express();
 let server = http.createServer(app);
 let wss = new WebSocket.Server({server});
-let ws = null;
 var indexFileLoc;
 var cached = {}
 
@@ -31,7 +30,7 @@ app.use(bodyParser.text());
 indexFileLoc = path.join(wd, "index.html");
 
 if(opts.w){
-  var watcher = chokidar.watch(indexParentLoc,{ ignored: [/(^|[\/\\])\./, /node_modules$/] })
+  var watcher = chokidar.watch(wd, { ignored: [/(^|[\/\\])\./, /node_modules$/] })
   var lastmtime = null;
   watcher.on("ready", ()=> {
     //console.log(chalk.green(`open http://localhost:${ opts.port }`));
@@ -55,15 +54,14 @@ if(opts.w){
 }
 
 wss.on("connection", (w)=>{
-  ws = w;
+  //console.log("websocket connected.");
 })
 
 var changeHandler = (p)=> {
   cached[p] = false;
   if(p === indexFileLoc) cached[indexFileLoc] = false;
   buildClient();
-  if(ws){
-    let cmd = null;
+  wss.clients.forEach((ws)=>{
     if(p.endsWith(".html")){
       ws.send(JSON.stringify({cmd:"reload"}));
     }else if(p.endsWith(".js")){
@@ -71,7 +69,7 @@ var changeHandler = (p)=> {
     }else if(p.endsWith(".cljs")){
       ws.send(JSON.stringify({cmd:"eval-cljs",path:p,file:fs.readFileSync(p,"utf8")}));
     }
-  }
+  });
 }
 
 const buildClient = (dev = true)=>{
@@ -96,11 +94,11 @@ app.get("/", (req, res, next)=>{
 });
 
 app.post("/hotreload/*", (req, res, next)=>{
-  if(ws){
+  wss.clients.forEach((ws)=>{
     ws.send(JSON.stringify({path:req.params[0],file:req.body}));
-    //console.log("YEAh");
-  }
-  //console.log("path:", req.params[0], req.body);
+    //console.log("hotreload send");
+  });
+  //console.log("path:", req.params[0]);
   res.send("")
 });
 
@@ -109,4 +107,5 @@ app.use(express.static(__dirname + "/dist"));
 server.listen( opts.port , ()=>{
   console.log(chalk.green(`serving at http://localhost:${ opts.port }`));
   changeHandler(indexFileLoc);
+  //setTimeout(()=> changeHandler(indexFileLoc), 1000);
 });
