@@ -1,0 +1,5 @@
+/resources
+/scripts/figwheel.clj
+/target
+/.nrepl-port
+/project.clj

@@ -74,8 +74,23 @@ var changeHandler = (p)=> {
 
 const buildClient = (dev = true)=>{
   let $;
-  try{
-    if(!cached[indexFileLoc]){
+  if(!cached[indexFileLoc]){
+    if (!fs.existsSync(indexFileLoc)){
+      //$ = fs.readFileSync(indexFileLoc,"utf8");
+      $ = `<html>
+<head>
+  <style> body { margin: 0; color: gray; background-color: black; } #root { position: absolute;} </style>
+</head>
+<body>
+  <div id="root"></div>
+  <canvas id="canvas"></canvas>
+  <script src="http://localhost:${ opts.port }/cljs-inline.js"></script>
+  <script src="http://localhost:${ opts.port }/hotreload-client.js"></script>
+  <script type="text/cljs" src="cg/core.cljs"></script>
+</body>
+</html>`;
+      cached[indexFileLoc] = $;
+    }else{
       $ = cheerio.load(fs.readFileSync(indexFileLoc,"utf8"))
       if(dev){
         $("body").append(`<script src="http://localhost:${ opts.port }/cljs-inline.js"></script>`)
@@ -83,8 +98,6 @@ const buildClient = (dev = true)=>{
       }
       cached[indexFileLoc] = $.html();
     }
-  }catch(e){
-    cached[indexFileLoc] = `<style>body{color:gray;background-color:black;}</style><body><pre>${e.stderr?e.stderr.toString("utf8"): e }</pre><script src="http://localhost:${ opts.port }/cljs-inline.js"></script><script src="http://localhost:${ opts.port }/hotreload-client.js"></script></body>`
   }
   return cached[indexFileLoc];
 };
@@ -104,6 +117,7 @@ app.post("/hotreload/*", (req, res, next)=>{
 
 app.use(express.static(wd));
 app.use(express.static(__dirname + "/dist"));
+app.use(express.static(__dirname + "/src"));
 server.listen( opts.port , ()=>{
   console.log(chalk.green(`serving at http://localhost:${ opts.port }`));
   changeHandler(indexFileLoc);

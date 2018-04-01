@@ -1,6 +1,7 @@
 (defproject raoof/cljs-inline "0.0.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.9.946"]
+                 ;[org.clojure/clojurescript "1.9.946"]
+                 [org.clojure/clojurescript "1.10.238"]
                  [reagent "0.7.0"]
                  ;[reagent "0.7.0" :exclusions [cljsjs/react]]
                  ;[andare "0.9.0"]

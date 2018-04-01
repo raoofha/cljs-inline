@@ -8,7 +8,6 @@
 ))
 
 ;(devtools/install!)
-(enable-console-print!)
 
 (defn load [url cb]
   (let [xhr (js/XMLHttpRequest.)]
@@ -16,34 +15,29 @@
                                      (cb (. xhr -responseText))))
     (. xhr open "GET" url)
     (. xhr overrideMimeType "text/plain")
-    (. xhr send))
-  #_(-> (js/fetch url)
-        (.then (fn [data] (. data text)))
-        (.then (fn [data] (cb data)))))
+    (. xhr send)))
+
+(def compiler-state (cljs/empty-state))
 
 (defn eval [s]
+  (cljs/analyze-str
+   compiler-state
+   s
+   ""
+   {}
+   identity)
+  ;(prn ('cg.core (:cljs.analyzer/namespaces @compiler-state)))
   (cljs/eval-str
-   (cljs/empty-state)
+   compiler-state
    s
    ""
    {:eval cljs/js-eval ;(fn [o] (prn o))
     :load (fn [{n :name} cb]
-            (cb {:lang :js :source "" :cache {}})
+            (cb {:lang :js :source "" :cache (get-in @compiler-state [:cljs.analyzer/namespaces n])})
             #_
             (load (cljs.analyzer/ns->relpath n) (fn [s]
                                                   (cb {:lang :clj :source s}))))}
    identity))
-
-(set! js/e (fn [strings] (eval (. strings join ""))))
-
-#_(defn run-scripts []
-    (let [scripts (. js/document getElementsByTagName "script")]
-      (doseq [i (range (. scripts -length))]
-        (let [script (aget scripts i)]
-          (when (= (. script -type) "text/cljs")
-            (if (not= (. script -src) "")
-              (load  (. script -src) eval)
-              (eval (. script -innerHTML))))))))
 
 (defn load-script [script]
   (let [c (chan)]
