@@ -61,9 +61,9 @@ au TextChanged,TextChangedI *.cljs,*.js call Hotreload()
 
 ## cljs-inline
 
-add this to your index.html
+add this to your index.html. [demo](http://cljs.ir)
 ```html
-<script src="https://unpkg.com/hotreload/dist/cljs-inline.js"></script>
+<script src="https://unpkg.com/hotreload-cljs/dist/cljs-inline.js"></script>
 ```
 
 ### Features
