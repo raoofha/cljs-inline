@@ -4,7 +4,6 @@
 npm i -g hotreload-cljs
 hotreload
 open http://localhost:3000
-curl -d "(cg.core/rectangle [200 200] [20 20] [255 0 0])" http://localhost:3000/hotreload/test.cljs -H "Content-Type: text/plain"
 ```
 
 ## Flags
@@ -30,12 +29,6 @@ au TextChanged,TextChangedI *.cljs,*.js call Hotreload()
 (defn render []
   (clear)
   (rectangle [100 100] [10 10] [255 0 0])
-  (rectangle [200 100] [20 20] [255 0 0 200])
-  (rectangle [200 200] [20 20] [255 0 0 200])
-  (pixel [111 111] [255 255 255])
-  (pixel [211 111] [255 255 255])
-  (pixel [211 211] [255 255 255])
-  (pixel [111 211] [255 255 255])
   )
 
 (defn root []

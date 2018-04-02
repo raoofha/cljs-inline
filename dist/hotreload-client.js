@@ -1,4 +1,4 @@
-(function hotreload() {
+(function hotreload(firstLoad) {
   let url = "ws://" + location.host + "/hotreload";
   let ws;
   ws = new WebSocket(url);
@@ -32,11 +32,36 @@
     }
   }
   ws.onopen = () => {
-    console.info("Hotreload Websocket connected.");
+    //ws.send({cmd:"connected"});
   }
   //ws.onerror = (e) => console.warn(e);
   ws.onclose = () => {
-    console.warn("Hotreload Websocket closed.");
+    //console.warn("Hotreload Websocket closed.");
     setTimeout(hotreload, 3000);
   }
-})();
+
+  if(firstLoad){
+    window._o = {};
+    window._o.console = {};
+    _o.console.log = console.log;
+    _o.console.error = console.error;
+    _o.console.info = console.info;
+    _o.console.warn = console.warn;
+  }
+  console.log = (...args)=>{
+    if(ws.readyState === 1) ws.send(JSON.stringify({cmd:"console.log", args}));
+    _o.console.log.apply(null,args);
+  }
+  console.error = (...args)=>{
+    if(ws.readyState === 1) ws.send(JSON.stringify({cmd:"console.error", args}));
+    _o.console.error.apply(null,args);
+  }
+  console.info = (...args)=>{
+    if(ws.readyState === 1) ws.send(JSON.stringify({cmd:"console.info", args}));
+    _o.console.info.apply(null,args);
+  }
+  console.warn = (...args)=>{
+    if(ws.readyState === 1) ws.send(JSON.stringify({cmd:"console.warn", args}));
+    _o.console.warn.apply(null,args);
+  }
+})(true);

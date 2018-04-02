@@ -9,6 +9,8 @@ const bodyParser = require("body-parser");
 const execSync = require('child_process').execSync;
 const cheerio = require('cheerio')
 const http = require("http");
+const rlv = require('readline-vim')
+const readline = require('readline');
 
 var wd = process.cwd();
 var opts = require('minimist')(process.argv.slice(2),{
@@ -53,9 +55,32 @@ if(opts.w){
   });
 }
 
-wss.on("connection", (w)=>{
-  //console.log("websocket connected.");
-})
+wss.on("connection", (ws)=>{
+  console.log();
+  console.log(chalk.green("connected: ready to repl."));
+  rl.prompt();
+ws.on("message", (m)=>{
+  try{
+    let data = JSON.parse(m);
+    switch(data.cmd){
+      case "console.log":
+        console.log.apply(null,data.args);
+        break;
+      case "console.error":
+        console.error.apply(null,data.args);
+        break;
+      case "console.info":
+        console.error.apply(null,data.args);
+        break;
+      case "console.warn":
+        console.warn.apply(null,data.args);
+        break;
+    }
+  }catch(e){
+  }
+});
+});
+
 
 var changeHandler = (p)=> {
   cached[p] = false;
@@ -107,10 +132,12 @@ app.get("/", (req, res, next)=>{
 });
 
 app.post("/hotreload/*", (req, res, next)=>{
-  wss.clients.forEach((ws)=>{
-    ws.send(JSON.stringify({path:req.params[0],file:req.body}));
-    //console.log("hotreload send");
-  });
+  if(!path.relative(wd,req.params[0]).startsWith("..")){
+    wss.clients.forEach((ws)=>{
+        ws.send(JSON.stringify({path:req.params[0],file:req.body}));
+      //console.log("hotreload send");
+    });
+  }
   //console.log("path:", req.params[0]);
   res.send("")
 });
@@ -122,4 +149,23 @@ server.listen( opts.port , ()=>{
   console.log(chalk.green(`serving at http://localhost:${ opts.port }`));
   changeHandler(indexFileLoc);
   //setTimeout(()=> changeHandler(indexFileLoc), 1000);
+  //rl.prompt();
+});
+
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+var vim = rlv(rl);
+
+rl.setPrompt("cljs.user=> ");
+rl.on('line', (line) => {
+  wss.clients.forEach((ws)=>{
+    ws.send(JSON.stringify({path:".cljs",file:line}));
+  });
+  if(line === "") rl.prompt();
+}).on('close', () => {
+  process.exit(0);
 });
