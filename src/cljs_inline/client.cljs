@@ -8,6 +8,7 @@
 ))
 
 ;(devtools/install!)
+(enable-console-print!)
 
 (defn load [url cb]
   (let [xhr (js/XMLHttpRequest.)]
@@ -31,7 +32,8 @@
    compiler-state
    s
    ""
-   {:eval cljs/js-eval ;(fn [o] (prn o))
+   {:context :expr
+    :eval cljs/js-eval ;(fn [o] (prn o))
     :load (fn [{n :name} cb]
             (cb {:lang :js :source "" :cache (get-in @compiler-state [:cljs.analyzer/namespaces n])})
             #_

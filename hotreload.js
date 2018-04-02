@@ -23,7 +23,8 @@ var app = express();
 let server = http.createServer(app);
 let wss = new WebSocket.Server({server});
 var indexFileLoc;
-var cached = {}
+var cached = {};
+let lastNS = "cljs.usr";
 
 app.use(bodyParser.urlencoded({ extended: true }));
 //app.use(bodyParser.json());
@@ -59,26 +60,32 @@ wss.on("connection", (ws)=>{
   console.log();
   console.log(chalk.green("connected: ready to repl."));
   rl.prompt();
-ws.on("message", (m)=>{
-  try{
-    let data = JSON.parse(m);
-    switch(data.cmd){
-      case "console.log":
-        console.log.apply(null,data.args);
-        break;
-      case "console.error":
-        console.error.apply(null,data.args);
-        break;
-      case "console.info":
-        console.error.apply(null,data.args);
-        break;
-      case "console.warn":
-        console.warn.apply(null,data.args);
-        break;
+  ws.on("message", (m)=>{
+    try{
+      let data = JSON.parse(m);
+      switch(data.cmd){
+        case "console.log":
+          console.log.apply(null,data.args);
+          break;
+        case "console.error":
+          console.error.apply(null,data.args);
+          break;
+        case "console.info":
+          console.error.apply(null,data.args);
+          break;
+        case "console.warn":
+          console.warn.apply(null,data.args);
+          break;
+        case "cljs-eval-result":
+          console.log(data.value);
+          lastNS = data.ns || lastNS;
+          rl.setPrompt(lastNS +"=> ");
+          rl.prompt();
+          break;
+      }
+    }catch(e){
     }
-  }catch(e){
-  }
-});
+  });
 });
 
 
@@ -160,12 +167,15 @@ const rl = readline.createInterface({
 
 var vim = rlv(rl);
 
-rl.setPrompt("cljs.user=> ");
+rl.setPrompt(lastNS + "=> ");
 rl.on('line', (line) => {
-  wss.clients.forEach((ws)=>{
-    ws.send(JSON.stringify({path:".cljs",file:line}));
-  });
-  if(line === "") rl.prompt();
+  if(line === "") {
+    rl.prompt();
+  }else{
+    wss.clients.forEach((ws)=>{
+      ws.send(JSON.stringify({cmd:"eval-cljs-repl",file:line}));
+    });
+  }
 }).on('close', () => {
   process.exit(0);
 });

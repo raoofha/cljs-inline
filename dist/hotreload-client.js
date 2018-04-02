@@ -29,6 +29,10 @@
       case "eval-cljs":
         cljs_inline.client.eval(data.file);
         break;
+      case "eval-cljs-repl":
+        let r = cljs.core.clj__GT_js(cljs_inline.client.eval(data.file));
+        ws.send(JSON.stringify({cmd:"cljs-eval-result", value: cljs.core.pr_str(r.value),ns:r.ns}));
+        break;
     }
   }
   ws.onopen = () => {
