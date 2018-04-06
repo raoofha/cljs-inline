@@ -11,6 +11,11 @@
 (enable-console-print!)
 
 (defn load [url cb]
+  #_
+  (-> (js/fetch url)
+      (.then (fn [d] (.text d)))
+      (.then cb)
+      )
   (let [xhr (js/XMLHttpRequest.)]
     (. xhr addEventListener "load" (fn []
                                      (cb (. xhr -responseText))))
@@ -33,6 +38,7 @@
    s
    ""
    {:context :expr
+    :def-emits-var true
     :eval cljs/js-eval ;(fn [o] (prn o))
     :load (fn [{n :name} cb]
             (cb {:lang :js :source "" :cache (get-in @compiler-state [:cljs.analyzer/namespaces n])})

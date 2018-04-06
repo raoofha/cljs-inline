@@ -39,9 +39,31 @@
     {:id           "min"
      :source-paths ["src"]
      :compiler     {:main            cljs-inline.client
-                    :output-to       "dist/cljs-inline.js"
+                    :output-to       "dist/cljs-inline.min.js"
                     :optimizations   :simple
                     :closure-defines {goog.DEBUG false}
                     :pretty-print    false
                     :optimize-constants true
-                    :static-fns true}}]})
+                    :static-fns true}}
+    {:id           "white"
+     :source-paths ["src"]
+     :compiler     {:main            cljs-inline.client
+                    :output-to       "dist/cljs-inline.js"
+                    :output-dir      "dist/cljs-inline-out"
+                    :optimizations   :whitespace
+                    :source-map      "dist/cljs-inline.js.map"
+                    :closure-defines {goog.DEBUG false}
+                    :pretty-print    false
+                    :optimize-constants true
+                    :static-fns true}}
+    {:id           "cljs"
+     :source-paths ["src"]
+     :compiler     {:main            clojurescript.core
+                    :output-to       "dist/cljs.js"
+                    :output-dir      "dist/cljs"
+                    :optimizations   :whitespace
+                    :source-map      "dist/cljs.js.map"
+                    :closure-defines {goog.DEBUG false}
+                    :pretty-print    false
+                    :optimize-constants true
+                    :static-fns true}}   ]})

@@ -2,13 +2,13 @@
 
 ```
 npm i -g hotreload-cljs
-hotreload
+hotreload -w
 open http://localhost:3000
 ```
 
 ## Flags
-* -w watch current directory useful if you don't want to config your editor
 * --port default to 3000
+* -w watch current directory
 
 ## Immidate feedback: vim config
 ```vimscript
