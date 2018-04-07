@@ -4,39 +4,7 @@
   let compiler_state = cljs.js.empty_state();
   let cljs_inline = {};
   goog.isProvided_ = ()=>false;
-  cljs_inline.eval = (f, ns = cljs.core.symbol("cljs.user"))=> {
-    cljs.analyzer.analyze(
-      compiler_state,
-      f,
-      null, 
-      cljs.core.hash_map(
-        cljs.core.keyword("ns"), ns
-      )
-    );
-    return cljs.js.eval(
-      compiler_state,
-      f,
-      cljs.core.hash_map(
-        cljs.core.keyword("ns"), ns,
-        cljs.core.keyword("def-emits-var"), true,
-        cljs.core.keyword("context"), cljs.core.keyword("expr"),
-        cljs.core.keyword("eval"), cljs.js.js_eval,
-        //cljs.core.keyword("eval"), cljs.core.prn,
-        cljs.core.keyword("load"), (opts,cb)=>{
-          let name = cljs.core.get(opts,cljs.core.keyword("name"));
-          cb(cljs.core.hash_map(
-            cljs.core.keyword("source"), f,
-            cljs.core.keyword("lang"), cljs.core.keyword("js"),
-            //cljs.core.keyword("cache"), cljs.core.get_in(cljs.core.deref(compiler_state),cljs.core.vector(cljs.core.keyword("cljs.analyzer/namespaces"), name))
-            //cljs.core.keyword("cache"), cljs.core.hash_map()
-            cljs.core.keyword("cache"), cljs.analyzer.get_namespace(compiler_state, name)
-          ));
-        },
-      ),
-      cljs.core.identity
-    );
-  }
-  cljs_inline.eval_str = (s, ns = cljs.core.symbol("cljs.user"))=> {
+  cljs_inline.eval_str = (s, ns = cljs.core.symbol("cljs.user"), js_eval = window.eval)=> {
     cljs.js.analyze_str(
       compiler_state,
       s,
@@ -57,8 +25,9 @@
         cljs.core.keyword("def-emits-var"), true,
         //cljs.core.keyword("context"), cljs.core.keyword("expr"),
         cljs.core.keyword("context"), cljs.core.keyword("statment"),
-        cljs.core.keyword("eval"), cljs.js.js_eval,
+        //cljs.core.keyword("eval"), cljs.js.js_eval,
         //cljs.core.keyword("eval"), cljs.core.prn,
+        cljs.core.keyword("eval"), (opts)=> js_eval(cljs.core.get(opts,cljs.core.keyword("source"))),
         //cljs.core.keyword("verbose"), true,
         cljs.core.keyword("load"), (opts,cb)=>{
           let name = cljs.core.get(opts,cljs.core.keyword("name"));
@@ -76,57 +45,7 @@
       cljs.core.identity
     );
   }
-  cljs_inline.compile_str = (s, ns = cljs.core.symbol("cljs.user"))=> {
-    cljs.js.analyze_str(
-      compiler_state,
-      s,
-      "", 
-      cljs.core.hash_map(
-        cljs.core.keyword("ns"), ns
-      ),
-      cljs.core.identity
-    );
-    return cljs.js.compile_str(
-      compiler_state,
-      s,
-      "", 
-      cljs.core.hash_map(
-        cljs.core.keyword("ns"), ns,
-        cljs.core.keyword("def-emits-var"), true,
-        //cljs.core.keyword("context"), cljs.core.keyword("expr"),
-        cljs.core.keyword("context"), cljs.core.keyword("statment"),
-        //cljs.core.keyword("eval"), cljs.js.js_eval,
-        cljs.core.keyword("eval"), cljs.core.prn,
-        cljs.core.keyword("load"), (opts,cb)=>{
-          let name = cljs.core.get(opts,cljs.core.keyword("name"));
-          cb(cljs.core.hash_map(
-            cljs.core.keyword("source"), s,
-            cljs.core.keyword("lang"), cljs.core.keyword("js"),
-            //cljs.core.keyword("cache"), cljs.core.get_in(cljs.core.deref(compiler_state),cljs.core.vector(cljs.core.keyword("cljs.analyzer/namespaces"), name))
-            cljs.core.keyword("cache"), cljs.analyzer.get_namespace(compiler_state, name)
-          ));
-        },
-      ),
-      //cljs.core.identity
-      (opts)=> {
-        let value = cljs.core.get(opts, cljs.core.keyword("value"));
-        console.log(value);
-        return eval(value);
-      }
-    );
-  }
 
-  cljs_inline.eval_all = (s, ns = cljs.core.symbol("cljs.user"))=> {
-    let forms = cljs.reader.read_string("(" + s + "\n)");
-    let l = cljs.core.count(forms);
-    let r;
-    for(let i = 0; i < l ; i++){
-      let form = cljs.core.get(forms, i);
-      r = cljs_inline.eval(form, ns);
-      ns = cljs.core.get(r, cljs.core.keyword("ns"));
-    }
-    return r;
-  }
   window.e = (strings)=> {
     let e = cljs_inline.eval_str(strings.join(""));
     //let e = cljs_inline.eval_all(strings.join(""));
