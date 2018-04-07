@@ -86,10 +86,10 @@ wss.on("connection", (ws)=>{
           }
           rl.prompt();
           break;
-        //case "connected":
-          //ws.send(JSON.stringify({cmd:"reload-cache"}));
+        case "connected":
+          ws.send(JSON.stringify({cmd:"connected"}));
           //console.log("connected");
-          //break;
+          break;
         case "process.exit":
           process.exit(0);
           break; }
@@ -148,7 +148,7 @@ app.use(express.static(__dirname + "/dist"));
 app.use(express.static(__dirname + "/src"));
 server.listen( opts.port , ()=>{
   //console.log(chalk.green(`serving at http://localhost:${ opts.port }`));
-  exec(`/usr/bin/env xdg-open http://localhost:${ opts.port }`);
+  //exec(`/usr/bin/env xdg-open http://localhost:${ opts.port }`);
   changeHandler(indexFileLoc);
   //setTimeout(()=> changeHandler(indexFileLoc), 1000);
   //rl.prompt();
@@ -175,8 +175,8 @@ rl.on('line', (line) => {
     });
   }
 }).on('close', () => {
-  wss.clients.forEach((ws)=>{
-    ws.send(JSON.stringify({cmd:"close"}));
-  });
+  //wss.clients.forEach((ws)=>{
+    //ws.send(JSON.stringify({cmd:"close"}));
+  //});
   process.exit(0);
 });

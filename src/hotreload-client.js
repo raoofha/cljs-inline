@@ -32,7 +32,7 @@
       case "eval-cljs-repl":
         //let r = cljs.core.clj__GT_js(cljs_inline.eval(data.file));
         //cljs.core.prn(data.ns,cljs.core.symbol(data.ns))
-        let r = cljs_inline.eval(data.file, cljs.core.symbol(data.ns));
+        let r = cljs_inline.eval_str(data.file, cljs.core.symbol(data.ns));
         let ns = cljs.core.get(r, cljs.core.keyword("ns"));
         if(cljs.core.nil_QMARK_(ns)){
           ws.send(JSON.stringify({cmd:"cljs-eval-result", error: cljs.core.pr_str(cljs.core.get(r, cljs.core.keyword("error")))}));
@@ -42,17 +42,24 @@
         let value = cljs.core.pr_str(cljs.core.get(r, cljs.core.keyword("value")));
         ws.send(JSON.stringify({cmd:"cljs-eval-result", value, ns}));
         break;
-      case "close":
-        close();
+      //case "close":
+        //close();
+        //break;
+      case "connected":
+        if(localStorage.hotreload_connected === "false"){
+          localStorage.hotreload_connected = true;
+          location.reload(true);
+        }
         break;
     }
   }
   ws.onopen = () => {
-    //ws.send(JSON.stringify({cmd:"connected"}));
+    ws.send(JSON.stringify({cmd:"connected"}));
   }
   //ws.onerror = (e) => console.warn(e);
   ws.onclose = () => {
     //console.warn("Hotreload Websocket closed.");
+    localStorage.hotreload_connected = false;
     setTimeout(hotreload, 3000);
   }
 

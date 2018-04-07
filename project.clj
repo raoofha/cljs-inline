@@ -6,10 +6,11 @@
                  ;[reagent "0.7.0" :exclusions [cljsjs/react]]
                  ;[andare "0.9.0"]
                  [org.clojure/core.async "0.4.474"]
+                 ;[org.clojure/google-closure-library "0.0-20170809-b9c14c6b"]
                  ]
   :plugins [[lein-cljsbuild "1.1.7"]]
   :min-lein-version "2.5.3"
-  :clean-targets ^{:protect false} [".stuff" "target" "resources/public/.stuff"]
+  :clean-targets ^{:protect false} [".stuff" "target" "resources/public/.stuff" "dist"]
 
   :figwheel {:css-dirs ["resources/public"]
              :server-port   3000
@@ -63,6 +64,7 @@
                     :output-dir      "dist/cljs"
                     :optimizations   :whitespace
                     :source-map      "dist/cljs.js.map"
+                    ;:asset-path           "cljs"
                     :closure-defines {goog.DEBUG false}
                     :pretty-print    false
                     :optimize-constants true

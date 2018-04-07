@@ -9,5 +9,23 @@
   <script src="/cljs-inline.js"></script>
   <script src="/hotreload-client.js"></script>
   <script type="text/cljs" src="/cg/core.cljs"></script>
+  <script type="text/cljs">
+(ns main.core
+  (:require [cg.core :refer [rectangle pixel clear]]
+            ))
+
+(defn render []
+  (clear)
+  (let [w 200
+        h 200
+        ]
+  (rectangle [(- (/ js/innerWidth 2) (/ w 2)) (- (/ js/innerHeight 2) (/ h 2))] [w h] [255 0 0 200])
+  )
+  )
+
+(render)
+(comment 
+         )
+  </script>
 </body>
 </html>
