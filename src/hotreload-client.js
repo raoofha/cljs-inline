@@ -15,7 +15,7 @@
         data.cmd = "eval-cljs-repl"
       }
     }
-
+    let r;
     switch (data.cmd) {
       case "reload":
         location.reload();
@@ -23,24 +23,29 @@
       case "reload-cache":
         location.reload(true);
         break;
-      case "eval-js":
-        eval(data.file);
+      case "eval-js-repl":
+        let error;
+        try {
+          r = eval(data.file);
+        } catch (e) {
+          error = cljs.core.pr_str(e);
+        }
+        if(error){
+          ws.send(JSON.stringify({cmd:"eval-result", error}));
+        }else{
+          ws.send(JSON.stringify({cmd:"eval-result", value: r}));
+        }
         break;
-      //case "eval-cljs":
-        //cljs_inline.eval(data.file);
-        //break;
       case "eval-cljs-repl":
-        //let r = cljs.core.clj__GT_js(cljs_inline.eval(data.file));
-        //cljs.core.prn(data.ns,cljs.core.symbol(data.ns))
-        let r = cljs_inline.eval_str(data.file, cljs.core.symbol(data.ns));
+        r = clojurescript.core.eval_str(data.file, cljs.core.symbol(data.ns));
         let ns = cljs.core.get(r, cljs.core.keyword("ns"));
         if(cljs.core.nil_QMARK_(ns)){
-          ws.send(JSON.stringify({cmd:"cljs-eval-result", error: cljs.core.pr_str(cljs.core.get(r, cljs.core.keyword("error")))}));
+          ws.send(JSON.stringify({cmd:"eval-result", error: cljs.core.pr_str(cljs.core.get(r, cljs.core.keyword("error")))}));
           break;
         }
         ns = cljs.core.name(ns);
         let value = cljs.core.pr_str(cljs.core.get(r, cljs.core.keyword("value")));
-        ws.send(JSON.stringify({cmd:"cljs-eval-result", value, ns}));
+        ws.send(JSON.stringify({cmd:"eval-result", value, ns}));
         break;
       //case "close":
         //close();

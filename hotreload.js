@@ -11,9 +11,10 @@ const http = require("http");
 const rlv = require('readline-vim')
 const readline = require('readline');
 const exec = require("child_process").exec;
+const minimist = require('minimist');
 
 var wd = process.cwd();
-var opts = require('minimist')(process.argv.slice(2),{
+let opts = minimist(process.argv.slice(2),{
   default:{
     port : 3000,
   }
@@ -68,15 +69,17 @@ wss.on("connection", (ws)=>{
           console.log.apply(null,data.args);
           break;
         case "console.error":
-          console.error.apply(null,data.args);
+          //console.error.apply(null,data.args);
+          console.error.apply(null,data.args.map((arg)=>chalk.red(arg)));
           break;
         case "console.info":
           console.error.apply(null,data.args);
           break;
         case "console.warn":
-          console.warn.apply(null,data.args);
+          //console.warn.apply(null,data.args);
+          console.error.apply(null,data.args.map((arg)=>chalk.yellow(arg)));
           break;
-        case "cljs-eval-result":
+        case "eval-result":
           if(data.error){
             console.log(chalk.red(data.error));
           }else{
@@ -121,7 +124,7 @@ const buildClient = (dev = true)=>{
     }else{
       cached[indexFileLoc] = fs.readFileSync(
         indexFileLoc,"utf8") + 
-        `<script src="/cljs.js"></script><script src="/cljs-inline.js"></script><script src="/hotreload-client.js"></script>`
+        `<script src="/cljs.js"></script></script><script src="/.cljs/hotreload-client.js"></script>`
     }
   }
   return cached[indexFileLoc];
@@ -144,8 +147,9 @@ app.post("/hotreload/*", (req, res, next)=>{
 });
 
 app.use(express.static(wd));
+app.use("/.cljs", express.static(wd + "/src"));
 app.use(express.static(__dirname + "/dist"));
-app.use(express.static(__dirname + "/src"));
+app.use("/.cljs", express.static(__dirname + "/src"));
 server.listen( opts.port , ()=>{
   //console.log(chalk.green(`serving at http://localhost:${ opts.port }`));
   //exec(`/usr/bin/env xdg-open http://localhost:${ opts.port }`);
@@ -166,9 +170,23 @@ rl.setPrompt(lastNS + "=> ");
 rl.on('line', (line) => {
   if(line === "") {
     rl.prompt();
+  }else if (line.startsWith(":pm ")){
+    let opts = minimist(line.split(" ").filter((i)=> i!=="").slice(1), {
+      default:{
+      }
+    });
+    if(opts._[0] === "i" || opts._[0] === "install"){
+      console.log(opts);
+      let packageName = opts._[1];
+    }
+    rl.prompt();
   }else if (line.startsWith(":node ")){
     console.log(eval(line.substring(6)));
     rl.prompt();
+  }else if (line.startsWith(":js ")){
+    wss.clients.forEach((ws)=>{
+      ws.send(JSON.stringify({cmd:"eval-js-repl",file:line.substring(4),ns:lastNS}));
+    });
   }else{
     wss.clients.forEach((ws)=>{
       ws.send(JSON.stringify({cmd:"eval-cljs-repl",file:line, ns:lastNS}));

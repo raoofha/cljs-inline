@@ -7,13 +7,14 @@
                  ;[andare "0.9.0"]
                  [org.clojure/core.async "0.4.474"]
                  ;[org.clojure/google-closure-library "0.0-20170809-b9c14c6b"]
+                 [replumb "0.2.4"]
                  ]
   :plugins [[lein-cljsbuild "1.1.7"]]
   :min-lein-version "2.5.3"
   :clean-targets ^{:protect false} [".stuff" "target" "resources/public/.stuff" "dist"]
 
   :figwheel {:css-dirs ["resources/public"]
-             :server-port   3000
+             :server-port   4000
              :server-logfile ".stuff/figwheel-server.log"}
 
   :profiles
@@ -27,26 +28,7 @@
 
   :cljsbuild
   {:builds
-   [{:id           "dev"
-     :source-paths ["src"]
-     :figwheel     true ;{:on-jsload "cljs-inline.client/render"}
-     :compiler     {:main                 cljs-inline.client
-                    :output-to            "resources/public/cljs-inline.js"
-                    :output-dir           "resources/public/.stuff/out"
-                    :asset-path           ".stuff/out"
-                    :source-map-timestamp true
-                    :preloads             [devtools.preload]
-                    :external-config      {:devtools/config {:features-to-install :all}}}}
-    {:id           "min"
-     :source-paths ["src"]
-     :compiler     {:main            cljs-inline.client
-                    :output-to       "dist/cljs-inline.min.js"
-                    :optimizations   :simple
-                    :closure-defines {goog.DEBUG false}
-                    :pretty-print    false
-                    :optimize-constants true
-                    :static-fns true}}
-    {:id           "white"
+   [{:id           "white"
      :source-paths ["src"]
      :compiler     {:main            cljs-inline.client
                     :output-to       "dist/cljs-inline.js"
@@ -57,15 +39,16 @@
                     :pretty-print    false
                     :optimize-constants true
                     :static-fns true}}
-    {:id           "cljs"
+    {:id           "dev"
      :source-paths ["src"]
+     :figwheel     true 
      :compiler     {:main            clojurescript.core
                     :output-to       "dist/cljs.js"
-                    :output-dir      "dist/cljs"
+                    :output-dir      "dist/.cljs"
                     :optimizations   :whitespace
                     :source-map      "dist/cljs.js.map"
-                    ;:asset-path           "cljs"
+                    ;:asset-path           ".cljs"
                     :closure-defines {goog.DEBUG false}
                     :pretty-print    false
                     :optimize-constants true
-                    :static-fns true}}   ]})
+                    :static-fns true}}]})
