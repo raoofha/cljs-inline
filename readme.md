@@ -2,13 +2,12 @@
 
 ```
 npm i -g hotreload-cljs
-hotreload -w
+hotreload
 open http://localhost:3000
 ```
 
 ## Flags
 * --port default to 3000
-* -w watch current directory
 
 ## Immidate feedback: vim config
 ```vimscript
@@ -22,21 +21,10 @@ au TextChanged,TextChangedI *.cljs,*.js call Hotreload()
 ## Examples
 ### without index.html
 ```clojure
-(ns main.core
-  (:require [cg.core :refer [rectangle pixel clear]]
-            [reagent.core :as r]))
-
-(defn render []
-  (clear)
-  (rectangle [100 100] [10 10] [255 0 0])
-  )
-
-(defn root []
-  [:div "hello world"]
-  )
-
-(r/render [root] (.getElementById js/document "root"))
-(render)
+; src/app/core.cljs - must be inside src
+(ns app.core)
+(def root (. js/document getElementById "root"))
+(set! (. root -textContent) "hello")
 ```
 ### with index.html
 ```html
@@ -47,16 +35,34 @@ au TextChanged,TextChangedI *.cljs,*.js call Hotreload()
 <body>
   <div id="root"></div>
   <canvas id="canvas"></canvas>
-  <script type="text/cljs" src="some/ns/core.cljs"></script>
+  <script type="text/cljs" src="src/app/core.cljs"></script>
+</body>
+</html>
+```
+### with inline cljs
+```html
+<html>
+<head>
+  <style> body { margin: 0; color: gray; background-color: black; } #root { position: absolute;} </style>
+</head>
+<body>
+  <div id="root"></div>
+  <canvas id="canvas"></canvas>
+  <script type="text/cljs">
+(ns app.core)
+(def root (. js/document getElementById "root"))
+(set! (. root -textContent) "hello")
+  </script>
 </body>
 </html>
 ```
 
-## cljs-inline
+
+## inline cljs 
 
 add this to your index.html. [demo](http://cljs.ir)
 ```html
-<script src="https://unpkg.com/hotreload-cljs/dist/cljs-inline.js"></script>
+<script src="https://unpkg.com/hotreload-cljs/dist/cljs.js"></script>
 ```
 
 ### Features

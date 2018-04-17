@@ -17,6 +17,7 @@ var wd = process.cwd();
 let opts = minimist(process.argv.slice(2),{
   default:{
     port : 3000,
+    brepl: false,
   }
 });
 
@@ -33,7 +34,7 @@ app.use(bodyParser.text());
 
 indexFileLoc = path.join(wd, "index.html");
 
-if(opts.w){
+//if(opts.w){
   var watcher = chokidar.watch(wd, { ignored: [/(^|[\/\\])\./, /node_modules$/] })
   var lastmtime = null;
   watcher.on("ready", ()=> {
@@ -55,7 +56,7 @@ if(opts.w){
         rl.prompt();
       })
   });
-}
+//}
 
 wss.on("connection", (ws)=>{
   //console.log();
@@ -104,7 +105,7 @@ wss.on("connection", (ws)=>{
 
 var changeHandler = (p)=> {
   cached[p] = false;
-  buildClient();
+  buildIndexHtml();
   wss.clients.forEach((ws)=>{
     if(p.endsWith(".html")){
       ws.send(JSON.stringify({cmd:"reload"}));
@@ -116,22 +117,33 @@ var changeHandler = (p)=> {
   });
 }
 
-const buildClient = (dev = true)=>{
+const buildIndexHtml = ()=>{
   let $;
   if(!cached[indexFileLoc]){
     if (!fs.existsSync(indexFileLoc)){
       cached[indexFileLoc] = fs.readFileSync(__dirname + "/src/index.html","utf8");
     }else{
-      cached[indexFileLoc] = fs.readFileSync(
-        indexFileLoc,"utf8") + 
-        `<script src="/cljs.js"></script></script><script src="/.cljs/hotreload-client.js"></script>`
+      cached[indexFileLoc] = fs.readFileSync(indexFileLoc,"utf8") + 
+        `<script src="/cljs.js"></script></script><script src="/.cljs/hotreload-client.js"></script>`;
     }
   }
   return cached[indexFileLoc];
 };
 
 app.get("/", (req, res, next)=>{
-  res.send(buildClient());
+  //res.send(buildIndexHtml());
+  let f;
+  if(opts.brepl){
+    f = __dirname + "/src/repl.html";
+    res.sendFile(f);
+  }else{
+    //if(fs.existsSync(indexFileLoc)){
+      //f = indexFileLoc;
+    //}else{
+      //f = __dirname + "/src/index.html";
+    //}
+    res.send(buildIndexHtml());
+  }
 });
 
 app.post("/hotreload/*", (req, res, next)=>{
@@ -148,8 +160,14 @@ app.post("/hotreload/*", (req, res, next)=>{
 
 app.use(express.static(wd));
 app.use("/.cljs", express.static(wd + "/src"));
-app.use(express.static(__dirname + "/dist"));
 app.use("/.cljs", express.static(__dirname + "/src"));
+app.use(express.static(__dirname + "/dist"));
+
+//app.get("/index.html", (req, res, next)=>{
+  //res.sendFile( __dirname + "/src/index.html");
+//});
+
+
 server.listen( opts.port , ()=>{
   //console.log(chalk.green(`serving at http://localhost:${ opts.port }`));
   //exec(`/usr/bin/env xdg-open http://localhost:${ opts.port }`);

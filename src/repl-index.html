@@ -1,0 +1,38 @@
+<html>
+<head>
+  <style> 
+body { margin: 0; color: gray; background-color: black; height: 100%; } 
+#root { position: absolute; width: 100%; height: 100%;} 
+textarea {
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    border: none;
+    resize: none;
+    color: white;
+    line-height: 2;
+}
+.center-vnh {
+    /*text-align: center;*/
+    /*vertical-align: middle;*/
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="center-vnh">press enter to say hello world</div>
+    <!--<textarea disabled>-->
+      <!--put these in your index.html-->
+      <!--<script src="/cljs.js"></script>-->
+      <!--<script src="/.cljs/hotreload-client.js"></script>-->
+      <!--<script type="text/cljs">(require 'some.ns)</script>-->
+    <!--</textarea>-->
+  </div>
+  <canvas id="canvas"></canvas>
+</body>
+</html>
